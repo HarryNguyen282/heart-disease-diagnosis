@@ -61,8 +61,18 @@ def evaluate_val(model_name, X_train, y_train, X_val, y_val, k=0, depth=0):
 
     model.fit(X_train, y_train)
 
-    val_pred = model.predict(X_val)
-    val_acc = accuracy_score(y_val, val_pred)
+    if model_name == "KMeans":
+        val_clusters = model.predict(X_val)
+        train_clusters = mode.labels_
+        cluster_class_mapping = {
+            cluster_id: Counter(y_train[train_clusters == cluster_id]).most_common(1)[0][0]
+            for cluster_id in np.unique(train_clusters)
+        }
+        kmean_pred = np.array([cluster_class_mapping[cluster_id] for cluster_id in val_clusters])
+        val_acc = accuracy_score(y_val, kmeans_pred)
+    else:
+        val_pred = model.predict(X_val)
+        val_acc = accuracy_score(y_val, val_pred)
     return model, val_acc
 
 def evaluate_test(model, X_test, y_test):
@@ -177,3 +187,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
